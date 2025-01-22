@@ -25,14 +25,8 @@ Route::get('/', function () {
 });
 
 // 21/01/2025
-// Route::get('/user/{id}', [UserController::class, 'show']);
+Route::get('/user/{id}', [UserController::class, 'show']);
 
-// Route::get('/users', [UserController::class, 'index']);
-
-// Route::resource('photos', PhotoController::class);
-// Route::resources([
-//     'photos' => PhotoController::class,
-//     'posts' => PostController::class,
-// ]);
+Route::get('/users', [UserController::class, 'index']);
 // 21/01/2025
 
