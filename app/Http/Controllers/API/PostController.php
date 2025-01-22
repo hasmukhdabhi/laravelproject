@@ -53,7 +53,7 @@ class PostController extends Controller
             "title" => $request->title,
             "body" => $request->body,
         ]);
-        
+
         return response()->json([
             "status" => 1,
             "message" => "Post created.",
@@ -111,4 +111,35 @@ class PostController extends Controller
         ]);
     }
 
+    // Delete Post
+    public function destroy(Request $request, $id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            "title" => "required",
+            "body" => "required"
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                "status" => 0,
+                "message" => "Validation Error.",
+                "data" => $validator->errors()->all()
+            ]);
+        }
+        $post = Post::find($id);
+        if (!$post) {
+            return response()->json([
+                "status" => 0,
+                "message" => "Post not found.",
+                "data" => null
+            ]);
+        }
+
+        $post->delete();
+        return response()->json([
+            "status" => 1,
+            "message" => "Post deleted.",
+            "data" => null
+        ]);
+    }
 }

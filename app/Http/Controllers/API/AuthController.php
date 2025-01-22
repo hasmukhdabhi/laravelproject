@@ -13,49 +13,87 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    // public function register(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         "name" => "required|string|max:255",
+    //         "email" => "required|email|max:255|unique:users,email",
+    //         "password" => "required|string|min:6",
+    //          ""
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             "status" => 0,
+    //             "message" => "Validation Errors.",
+    //             "data" => $validator->errors()->all()
+    //         ]);
+    //     }
+
+    //     // Create user 
+    //     $user = User::create([
+    //         "name" => $request->name,
+    //         "email" => $request->email,
+    //         // "password" => bcrypt($request->password),
+    //         "password" => Hash::make($request->password),
+    //     ]);
+
+    //     // Check if user is created and token is generated
+    //     if ($user) {
+    //         $token = $user->createToken("MyApp")->plainTextToken;
+
+    //         return response()->json([
+    //             "status" => 1,
+    //             "message" => "User Registered.",
+    //             "data" => [
+    //                 "name" => $user->name,
+    //                 "email" => $user->email,
+    //                 "token" => $token,
+    //             ],
+    //         ]);
+    //     } else {
+    //         return response()->json([
+    //             "status" => 0,
+    //             "message" => "User Registration Failed."
+    //         ], 500);
+    //     }
+    // }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "name" => "required|string|max:255",
-            "email" => "required|email|max:255|unique:users,email",
-            "password" => "required|string|min:6",
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|same:password',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                "status" => 0,
-                "message" => "Validation Errors.",
-                "data" => $validator->errors()->all()
-            ]);
+                'status' => 0,
+                'success' => false,
+                'message' => $validator->errors(),
+                'data' => null
+            ], 422);
         }
 
-        // Create user 
         $user = User::create([
-            "name" => $request->name,
-            "email" => $request->email,
-            // "password" => bcrypt($request->password),
-            "password" => Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        // Check if user is created and token is generated
-        if ($user) {
-            $token = $user->createToken("MyApp")->plainTextToken;
+        $response = [];
+        $response["token"] = $user->createToken("MyApp")->plainTextToken;
+        $response["name"] = $user->name;
+        $response["email"] = $user->email;
 
-            return response()->json([
-                "status" => 1,
-                "message" => "User Registered.",
-                "data" => [
-                    "name" => $user->name,
-                    "email" => $user->email,
-                    "token" => $token,
-                ],
-            ]);
-        } else {
-            return response()->json([
-                "status" => 0,
-                "message" => "User Registration Failed."
-            ], 500);
-        }
+        return response()->json([
+            'status' => 1,
+            'success' => true,
+            'message' => 'User registered successfully.',
+            'data' => $response
+        ], 201);
     }
 
 
@@ -84,4 +122,17 @@ class AuthController extends Controller
             ]);
         }
     }
+
+    // logout
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            "status" => 1,
+            "success" => true,
+            "message" => "User logged out.",
+            "data" => null
+        ]);
+    }
+
 }
